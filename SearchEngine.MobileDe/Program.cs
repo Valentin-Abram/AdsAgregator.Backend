@@ -66,7 +66,7 @@ namespace SearchEngine.MobileDe
     {
         private AppDbContext dbContext;
         private IWebDriver browser;
-        private string apiUrl = "https://adsagregatorbackend.azurewebsites.net/api/";
+        private string apiUrl = "https://adsagregatorbackend20200429222631.azurewebsites.net/api/";
 
         public MobileDeSearchEngine()
         {

@@ -140,7 +140,7 @@ namespace SearchEngine.EbayDe
     {
         private EbayDeParser _searchClient;
         private ApplicationUser _user;
-        private string apiUrl = "https://adsagregatorbackend.azurewebsites.net/api/";
+        private string apiUrl = "https://adsagregatorbackend20200429222631.azurewebsites.net/api/";
 
 
         public Tables.SearchItem Searchitem { get; set; }
