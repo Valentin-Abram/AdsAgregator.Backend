@@ -15,6 +15,8 @@ using Newtonsoft.Json;
 using System.IO;
 using HtmlAgilityPack;
 using SearchEngine.Utilities;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
 
 namespace SearchEngine.EbayDe
 {
@@ -22,10 +24,13 @@ namespace SearchEngine.EbayDe
     {
         static void Main(string[] args)
         {
-            Begin:
+        Begin:
             try
             {
-                SearchEngine.Start();
+                while (true)
+                {
+                    SearchEngine.MakeSearch().GetAwaiter().GetResult();
+                }
             }
             catch (Exception ex)
             {
@@ -35,23 +40,13 @@ namespace SearchEngine.EbayDe
 
             Console.ReadLine();
             Console.ReadLine();
-            Console.ReadLine();
-            Console.ReadLine();
-            Console.ReadLine();
-            Console.ReadLine();
-            Console.ReadLine();
         }
 
     }
 
     static class SearchEngine
     {
-        private static Timer _timer;
-        private static int INTERVAL = 10000;
-
         public static List<Search> Searches { get; set; } = new List<Search>();
-
-
         private static async Task UpdateSearchList()
         {
             var dbContext = new AppDbContext();
@@ -88,52 +83,19 @@ namespace SearchEngine.EbayDe
             }
 
         }
-
-        public static async void Start()
+        public static async Task MakeSearch()
         {
             await UpdateSearchList();
-            await MakeSearch();
-
-            _timer = new Timer(INTERVAL);
-            _timer.Elapsed += OnTimerClick;
-            _timer.Start();
-
-        }
-
-        public static void Stop()
-        {
-            _timer?.Stop();
-        }
-
-        private static async void OnTimerClick(object sender, ElapsedEventArgs e)
-        {
-            await UpdateSearchList();
-            try
-            {
-                await MakeSearch();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
-        }
-
-        private static async Task MakeSearch()
-        {
-            var taskList = new List<Task>();
 
             foreach (var item in Searches)
             {
-                taskList.Add(Task.Run(async () => await item.ProcessSearch()));
+                await item.ProcessSearch();
             }
-
-            await Task.WhenAll(taskList);
         }
 
-      
     }
 
-   
+
 
 
     class Search
@@ -196,8 +158,6 @@ namespace SearchEngine.EbayDe
                 });
             }
 
-
-
             if (ads.Count > 0)
             {
                 await PostAds(_user.Id.ToString(), list);
@@ -245,21 +205,25 @@ namespace SearchEngine.EbayDe
 
         private async Task<string> RequestHtmlData(string url)
         {
-            HttpClient httpClient = new HttpClient();
-
-
-            Uri uri = new Uri(url);
-
             string res = string.Empty;
 
             try
             {
-                var stream = await httpClient.GetStreamAsync(url);
 
-                var sr = new StreamReader(stream);
+                IWebDriver browser;
+
+                var options = new ChromeOptions();
+                options.PageLoadStrategy = PageLoadStrategy.Eager;
 
 
-                res = await sr.ReadToEndAsync();
+                browser = new ChromeDriver(options);
+
+                browser.Navigate().GoToUrl(url);
+
+                res = browser.PageSource;
+
+                browser.Close();
+
             }
             catch (Exception ex)
             {
