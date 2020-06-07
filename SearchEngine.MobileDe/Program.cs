@@ -65,19 +65,11 @@ namespace SearchEngine.MobileDe
     public class MobileDeSearchEngine
     {
         private AppDbContext dbContext;
-        private IWebDriver browser;
         private string apiUrl = "https://adsagregatorbackend20200429222631.azurewebsites.net/api/";
 
         public MobileDeSearchEngine()
         {
             dbContext = new AppDbContext();
-
-            var options = new ChromeOptions();
-            options.PageLoadStrategy = PageLoadStrategy.Eager;
-
-
-            browser = new ChromeDriver(options);
-
         }
 
         private async Task<List<SearchItem>> GetActiveSearches()
@@ -89,28 +81,19 @@ namespace SearchEngine.MobileDe
 
         public async Task ProcessSearch()
         {
+          
+            
             try
             {
                 var searchItems = await GetActiveSearches();
 
-                var random = new Random();
-                var steps = random.Next(5, 50);
-
-                for (int i = 0; i < steps; i++)
-                {
-                    var p1 = random.Next(0, searchItems.Count - 1);
-                    var p2 = random.Next(0, searchItems.Count - 1);
-
-                    var a = searchItems[p1];
-                    var b = searchItems[p2];
-
-                    searchItems[p1] = b;
-                    searchItems[p2] = a;
-                }
-
-
+              
                 foreach (var item in searchItems)
                 {
+
+                    var options = new ChromeOptions();
+                    options.PageLoadStrategy = PageLoadStrategy.Eager;
+                    IWebDriver browser = new ChromeDriver(options);
 
                     browser.Navigate().GoToUrl(item.Url);
 
@@ -142,39 +125,11 @@ namespace SearchEngine.MobileDe
                         PostAds(item.OwnerId.ToString(), list);
 
 
-
-                    if (list.Count == 0)
-                    {
-                        browser.Quit();
-                        browser = new ChromeDriver();
-
-                        return;
-                    }
-
-
-
-
-                    browser.Quit();
-
-                    var options = new ChromeOptions();
-                    options.PageLoadStrategy = PageLoadStrategy.Eager;
-                    browser = new ChromeDriver(options);
-
-
                     await Task.WhenAll(postResults);
 
-                    try
-                    {
-                        browser.Close();
-                        browser.Quit();
-                    }
-                    catch
-                    {
-
-                    }
-
-
+                     browser.Close();
                 }
+
             }
             catch (Exception ex)
             {
@@ -182,7 +137,6 @@ namespace SearchEngine.MobileDe
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(ex.Message);
                 Console.ResetColor();
-                this.browser.Close();
             }
 
 
