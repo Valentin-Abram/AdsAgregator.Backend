@@ -126,6 +126,7 @@ namespace SearchEngine.EbayDe
             try
             {
                 ads = await _searchClient.GetAds();
+                Console.WriteLine($"Got {ads.Count} ads from page");
             }
             catch (Exception ex)
             {
