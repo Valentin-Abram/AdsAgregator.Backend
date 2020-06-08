@@ -17,6 +17,7 @@ using HtmlAgilityPack;
 using SearchEngine.Utilities;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using System.Threading;
 
 namespace SearchEngine.EbayDe
 {
@@ -126,7 +127,10 @@ namespace SearchEngine.EbayDe
             try
             {
                 ads = await _searchClient.GetAds();
-                Console.WriteLine($"Got {ads.Count} ads from page");
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"|||||||||||||| Got {ads.Count} ads from page ||||||||||||||||||");
+                Console.ResetColor();
             }
             catch (Exception ex)
             {
@@ -223,8 +227,14 @@ namespace SearchEngine.EbayDe
 
                 res = browser.PageSource;
 
+                if (res.Contains("Access denied"))
+                    browser.Navigate().GoToUrl("https://www.ebay-kleinanzeigen.de/");
+
+                ActLikeHuman(browser);
+
                 browser.Close();
 
+                Thread.Sleep(120000);
             }
             catch (Exception ex)
             {
@@ -235,6 +245,42 @@ namespace SearchEngine.EbayDe
 
             return res;
         }
+
+        private Task<bool> ActLikeHuman(IWebDriver driver)
+        {
+            try
+            {
+                var random = new Random();
+
+                IJavaScriptExecutor js = (IJavaScriptExecutor)driver;
+
+                var steps = random.Next(3, 5);
+
+                //js.ExecuteScript("var button = document.getElementById('gdpr-consent-accept-button'); if(button != null){button.click();}");
+
+
+                //if (random.Next(1, 4) % 2 == 0)
+                //    js.ExecuteScript("document.getElementsByClassName('cBox--resultList')[0].click()");
+
+                for (int i = 0; i < steps; i++)
+                {
+                    js.ExecuteScript($"window.scroll(0, {random.Next(0, i * 1000)})");
+
+                    Thread.Sleep(random.Next(1000, 2000));
+                }
+
+                // js.ExecuteScript("document.getElementsByClassName('cBox--resultList')[0].click()");
+            }
+            catch (Exception ex)
+            {
+                return Task.FromResult(false);
+            }
+
+
+            return Task.FromResult(true);
+
+        }
+
 
         private List<AdModel> GetDataFromHtml(string rawHtml)
         {
