@@ -17,7 +17,6 @@
   <ItemGroup>
     <ProjectReference Include="..\AdsAgregator.CommonModels\AdsAgregator.CommonModels.csproj" />
     <ProjectReference Include="..\AdsAgregator.DAL\AdsAgregator.DAL.csproj" />
-    <ProjectReference Include="..\EfficientDelivery.DAL\EfficientDelivery.DAL.csproj" />
   </ItemGroup>
 
 
