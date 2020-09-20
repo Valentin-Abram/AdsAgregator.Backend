@@ -11,11 +11,11 @@ namespace AdsAgregator.DAL.Database
 
         public AppDbContext()
         {
-            var builder = new ConfigurationBuilder()
-               .SetBasePath(Directory.GetCurrentDirectory())
-               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            //var builder = new ConfigurationBuilder()
+            //   .SetBasePath(Directory.GetCurrentDirectory())
+            //   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-            Configuration = builder.Build();
+            //Configuration = builder.Build();
 
         }
 
