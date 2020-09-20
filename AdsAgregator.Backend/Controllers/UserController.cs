@@ -55,6 +55,11 @@ namespace AdsAgregator.Backend.Controllers
         [HttpGet]
         public async Task<IActionResult> SignIn(string username, string password, string mobileToken)
         {
+
+            try
+            {
+
+           
             _dbLogger.Log("getting user from database", DateTime.Now);
 
             var user = _database
@@ -86,6 +91,12 @@ namespace AdsAgregator.Backend.Controllers
             }
 
             return StatusCode(200, user);
+            }
+            catch (Exception ex)
+            {
+
+                return Ok(ex.Message);
+            }
         }
 
         [HttpGet]
