@@ -66,16 +66,16 @@ namespace SearchEngine.MobileDe
     {
         private AppDbContext dbContext;
         private IWebDriver browser;
-        private string apiUrl = "https://adsagregatorbackend.azurewebsites.net/api/";
+        private string apiUrl = "https://adsagregator.azurewebsites.net/api/";
 
         public MobileDeSearchEngine()
         {
             dbContext = new AppDbContext();
 
-            var options = new FirefoxOptions();
+            var options = new ChromeOptions();
             options.PageLoadStrategy = PageLoadStrategy.Eager;
 
-            browser = new FirefoxDriver(options);
+            browser = new ChromeDriver(options);
 
         }
 
@@ -151,10 +151,10 @@ namespace SearchEngine.MobileDe
                 { 
                     browser.Quit();
 
-                    if (browser.GetType() == typeof(FirefoxDriver))
+                    if (browser.GetType() == typeof(ChromeDriver))
                         browser = new ChromeDriver();
                     else
-                        browser = new FirefoxDriver();
+                        browser = new ChromeDriver();
 
                     return;
                 }
@@ -163,19 +163,11 @@ namespace SearchEngine.MobileDe
                 
 
                 browser.Quit();
-                if (browser.GetType() == typeof(FirefoxDriver))
-                {
-                    var options = new ChromeOptions();
-                    options.PageLoadStrategy = PageLoadStrategy.Eager;
-                    browser = new ChromeDriver(options);
-                }
-                else
-                {
-                    var options = new FirefoxOptions();
-                    options.PageLoadStrategy = PageLoadStrategy.Eager;
-
-                    browser = new FirefoxDriver(options);
-                }
+               
+                var options = new ChromeOptions();
+                options.PageLoadStrategy = PageLoadStrategy.Eager;
+                browser = new ChromeDriver(options);
+               
                    
                 await Task.WhenAll(postResults);
 
