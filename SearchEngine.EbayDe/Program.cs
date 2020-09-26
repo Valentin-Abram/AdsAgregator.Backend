@@ -36,10 +36,6 @@ namespace SearchEngine.EbayDe
             Console.ReadLine();
             Console.ReadLine();
             Console.ReadLine();
-            Console.ReadLine();
-            Console.ReadLine();
-            Console.ReadLine();
-            Console.ReadLine();
         }
 
     }
@@ -202,6 +198,8 @@ namespace SearchEngine.EbayDe
             {
                 await PostAds(_user.Id.ToString(), list);
             }
+
+            Console.WriteLine($"Last search responce was in {DateTime.Now.ToShortTimeString()}");
 
         }
 

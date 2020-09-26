@@ -91,8 +91,6 @@ namespace SearchEngine.MobileDe
             try
             {
 
-           
-
             var searchItems = await GetActiveSearches();
 
             var random = new Random();
@@ -150,27 +148,18 @@ namespace SearchEngine.MobileDe
                 if (list.Count == 0)
                 { 
                     browser.Quit();
-
-                    if (browser.GetType() == typeof(ChromeDriver))
-                        browser = new ChromeDriver();
-                    else
-                        browser = new ChromeDriver();
+                    browser = new ChromeDriver();
 
                     return;
                 }
-
-
-                
 
                 browser.Quit();
                
                 var options = new ChromeOptions();
                 options.PageLoadStrategy = PageLoadStrategy.Eager;
                 browser = new ChromeDriver(options);
-               
                    
                 await Task.WhenAll(postResults);
-
             }
             }
             catch (Exception ex)
@@ -199,8 +188,6 @@ namespace SearchEngine.MobileDe
             var encodedContent = new FormUrlEncodedContent(parameters);
 
             var response = await httpClient.PostAsync($"{apiUrl}/ads/postads", encodedContent);
-
-            
 
             return  response.StatusCode;
         }
