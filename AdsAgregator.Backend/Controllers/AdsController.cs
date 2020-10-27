@@ -8,6 +8,7 @@ using AdsAgregator.DAL.Database;
 using AdsAgregator.DAL.Database.Tables;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 
 namespace AdsAgregator.Backend.Controllers
@@ -17,11 +18,14 @@ namespace AdsAgregator.Backend.Controllers
     public class AdsController : ControllerBase
     {
         private AppDbContext _dbContext;
-        private const string _firebaseServerApiKey = "AAAAtc0y0OE:APA91bFyopTw_73HY9KatdjbGV_cYLWGtmLakga-yHeyO7kV6XPXLinpPGZ1gqQTx0MQc90O4QTkjPspm_5CcNSf0exSmUtNsnOTdUTLCAGTOP7RPkM9WXcBBFGgGr-_rEFK46I9vcUi";
+        private IConfiguration _configuration;
+        private readonly string _firebaseServerApiKey;
 
-        public AdsController(AppDbContext dbContext)
+        public AdsController(AppDbContext dbContext, IConfiguration configuration)
         {
             _dbContext = dbContext;
+            _configuration = configuration;
+            _firebaseServerApiKey = _configuration["Firebase:ServerApiKey"];
         }
 
         /// <summary>
