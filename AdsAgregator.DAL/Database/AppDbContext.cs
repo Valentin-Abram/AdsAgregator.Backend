@@ -11,17 +11,17 @@ namespace AdsAgregator.DAL.Database
 
         public AppDbContext()
         {
-            //var builder = new ConfigurationBuilder()
-            //   .SetBasePath(Directory.GetCurrentDirectory())
-            //   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            var builder = new ConfigurationBuilder()
+               .SetBasePath(Directory.GetCurrentDirectory())
+               .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-            //Configuration = builder.Build();
+            Configuration = builder.Build();
 
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=tcp:kalitka.database.windows.net,1433;Initial Catalog=adsagregatordb;Persist Security Info=False;User ID=Valentin;Password=5Vyc6666.;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;");
+            optionsBuilder.UseSqlServer(Configuration["ConnectionStrings:DefaultConnection"]);
             base.OnConfiguring(optionsBuilder);
         }
 

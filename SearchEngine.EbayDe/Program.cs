@@ -15,6 +15,7 @@ using Newtonsoft.Json;
 using System.IO;
 using HtmlAgilityPack;
 using SearchEngine.Utilities;
+using System.Configuration;
 
 namespace SearchEngine.EbayDe
 {
@@ -136,7 +137,7 @@ namespace SearchEngine.EbayDe
     {
         private EbayDeParser _searchClient;
         private ApplicationUser _user;
-        private string apiUrl = "https://adsagregator.azurewebsites.net/api/";
+        private string apiUrl = ConfigurationManager.AppSettings["Api:url"];
 
 
         public Tables.SearchItem Searchitem { get; set; }
