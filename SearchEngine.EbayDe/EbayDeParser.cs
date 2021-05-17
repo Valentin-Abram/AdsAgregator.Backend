@@ -11,47 +11,9 @@ using SearchEngine.Utilities;
 
 namespace SearchEngine.EbayDe
 {
-    public class EbayDeParser
+    public static class EbayDeParser
     {
-        public string _searchUrl;
-
-        public async Task<List<AdModel>> GetAds()
-        {
-            var data = await RequestHtmlData(_searchUrl);
-            var items = GetDataFromHtml(data);
-
-            return items;
-        }
-
-        private async Task<string> RequestHtmlData(string url)
-        {
-            HttpClient httpClient = new HttpClient();
-
-
-            Uri uri = new Uri(url);
-
-            string res = string.Empty;
-
-            try
-            {
-                var stream = await httpClient.GetStreamAsync(url);
-
-                var sr = new StreamReader(stream);
-
-
-                res = await sr.ReadToEndAsync();
-            }
-            catch (Exception ex)
-            {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(ex.Message);
-                Console.ResetColor();
-            }
-
-            return res;
-        }
-
-        private List<AdModel> GetDataFromHtml(string rawHtml)
+        public static List<AdModel> GetDataFromHtml(string rawHtml)
         {
             var document = new HtmlDocument();
             document.LoadHtml(rawHtml);
@@ -74,7 +36,7 @@ namespace SearchEngine.EbayDe
             return list;
         }
 
-        private AdModel ParseAdItem(HtmlNode node)
+        private static AdModel ParseAdItem(HtmlNode node)
         {
             var document = new HtmlDocument();
             document.LoadHtml(node.InnerHtml);
@@ -98,22 +60,19 @@ namespace SearchEngine.EbayDe
                 .Where(n => n.HasClass("simpletag"))
                 .Select(n => n.InnerText);
 
-            var PriceAndLocation = node.Descendants(0)
-                .FirstOrDefault(n => n.HasClass("aditem-details"))
-                .InnerText
-                .Split(new char[] { '\n' }, StringSplitOptions.RemoveEmptyEntries)
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .ToList();
+            var Price = node.Descendants(0)
+                .FirstOrDefault(n => n.HasClass("aditem-main--middle--price"))
+                .InnerText;
 
+            var address= node.Descendants(0)
+                .FirstOrDefault(n => n.HasClass("aditem-main--top--left"))
+                .InnerText;
 
-            for (int i = 0; i < PriceAndLocation.Count; i++)
-            {
-                PriceAndLocation[i] = PriceAndLocation[i].Trim();
-            }
 
             var adDateCreated = node.Descendants(0)
-                .FirstOrDefault(n => n.HasClass("aditem-addon"))
+                .FirstOrDefault(n => n.HasClass("aditem-main--top--right"))
                 .InnerText;
+
 
             adDateCreated = string.Join(" ", adDateCreated.RemoveEscapes()
                 .Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
@@ -124,16 +83,15 @@ namespace SearchEngine.EbayDe
                 AdTitle = adTitle,
                 CarInfo = string.Join(" ", carInfo),
                 ImageLink = imageLink,
-                PriceInfo = string.Join(" ", PriceAndLocation.Take(PriceAndLocation.Count - 2)),
+                PriceInfo = Price.Trim(),
                 AdSource = AdSource.Ebay,
-                AddressInfo = string.Join(" ", PriceAndLocation.Skip(PriceAndLocation.Count - 2).Take(2)),
-                CreatedAtInfo = adDateCreated,
+                AddressInfo = address.Trim(),
+                CreatedAtInfo = adDateCreated.Trim(),
                 AdLink = adLink
             };
 
 
             return model;
         }
-
     }
 }
