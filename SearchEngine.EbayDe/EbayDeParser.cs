@@ -82,12 +82,12 @@ namespace SearchEngine.EbayDe
                 ProviderAdId = adId,
                 AdTitle = adTitle,
                 CarInfo = string.Join(" ", carInfo),
-                ImageLink = imageLink,
+                ImageLink = imageLink == null ? imageLink : imageLink.Replace(" ", string.Empty),
                 PriceInfo = Price.Trim(),
                 AdSource = AdSource.Ebay,
                 AddressInfo = address.Trim(),
                 CreatedAtInfo = adDateCreated.Trim(),
-                AdLink = adLink
+                AdLink = adLink == null ? adLink : adLink.Replace(" ", string.Empty)
             };
 
 
