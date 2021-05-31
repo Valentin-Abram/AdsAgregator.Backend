@@ -20,64 +20,74 @@ namespace SearchEngine.EbayDe
     {
         private AppDbContext dbContext = new AppDbContext();
         private string apiUrl = "http://localhost:51878";
-
+        private const int PAGE_RESULTS_QUANTITY = 20;
         public EbayDeSearchEngine()
         {
 
 
         }
 
-
- 
-       
-
         public async Task ProcessSearch()
         {
             var searchItems = await GetActiveSearches();
     
-            var browser = GetChromeBrowser();
+            var taskList = new List<Task>();
 
             foreach (var item in searchItems)
             {
-                browser.Navigate().GoToUrl(item.Url);
-
-                var content = browser.PageSource;
-                var resultList = EbayDeParser.GetDataFromHtml(content);
-
-                var list = new List<Ad>();
-
-                foreach (var resultItem in resultList)
-                {
-                    list.Add(new Ad
-                    {
-                        OwnerId = item.OwnerId,
-                        AddressInfo = resultItem.AddressInfo,
-                        AdLink = resultItem.AdLink,
-                        AdSource = resultItem.AdSource,
-                        AdTitle = resultItem.AdTitle,
-                        CarInfo = resultItem.CarInfo,
-                        CreatedAtInfo = resultItem.CreatedAtInfo,
-                        Email = resultItem.Email,
-                        ImageLink = resultItem.ImageLink,
-                        Phone = resultItem.Phone,
-                        PriceInfo = resultItem.PriceInfo,
-                        ProviderAdId = resultItem.ProviderAdId
-                    });
-                }
-
-                var postResults =
-                    PostAdsToDb(list);
-
-                browser.Quit();
-
-                if (list.Count == 0)
-                    return;
-                else if (list.Count > 0)
-                    await Task.WhenAll(postResults);
+                await ProcessItemSearchResults(item.Url, item.OwnerId);
             }
 
+            
         }
 
+
+        private async Task ProcessItemSearchResults(string pageUrl, int itemOwnerId)
+        {
+            var browser = GetChromeBrowser();
+
+            browser.Navigate().GoToUrl(pageUrl);
+
+            var pageContent = browser.PageSource;
+
+            var resultList = EbayDeParser.GetDataFromHtml(pageContent);
+
+            browser.Quit();
+
+            if (resultList.Count == 0)
+                return;
+
+            var list = new List<Ad>();
+
+            foreach (var resultItem in resultList)
+            {
+                list.Add(new Ad
+                {
+                    OwnerId = itemOwnerId,
+                    AddressInfo = resultItem.AddressInfo,
+                    AdLink = resultItem.AdLink,
+                    AdSource = resultItem.AdSource,
+                    AdTitle = resultItem.AdTitle,
+                    CarInfo = resultItem.CarInfo,
+                    CreatedAtInfo = resultItem.CreatedAtInfo,
+                    Email = resultItem.Email,
+                    ImageLink = resultItem.ImageLink,
+                    Phone = resultItem.Phone,
+                    PriceInfo = resultItem.PriceInfo,
+                    ProviderAdId = resultItem.ProviderAdId
+                });
+            }
+
+            var postResults = await PostAdsToDb(list);
+
+            if (postResults < PAGE_RESULTS_QUANTITY)
+                return;
+
+            var nextPageUrl = EbayDeParser.GetNextPageUrl(pageContent);
+
+            if (!string.IsNullOrWhiteSpace(nextPageUrl))
+                await ProcessItemSearchResults(nextPageUrl, itemOwnerId);
+        }
 
 
         private async Task<HttpStatusCode> PostAds(string userId, List<Ad> ads)
@@ -112,7 +122,6 @@ namespace SearchEngine.EbayDe
                 {
                     dbContext.Ads.Add(item);
                 }
-
             }
 
             return await dbContext.SaveChangesAsync();

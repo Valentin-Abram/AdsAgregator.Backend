@@ -36,6 +36,30 @@ namespace SearchEngine.EbayDe
             return list;
         }
 
+        public static string GetNextPageUrl(string currentPageContent)
+        {
+            var document = new HtmlDocument();
+            document.LoadHtml(currentPageContent);
+
+            var currentPageElement = document
+                .DocumentNode
+                .Descendants(0)
+                .FirstOrDefault(n => n.HasClass("pagination-current"));
+
+            if (currentPageElement is null)
+                return string.Empty;
+
+            var currentPageNumber = int.Parse(currentPageElement.InnerText);
+
+            var nextPageUrl = document
+                .DocumentNode
+                .Descendants(0)
+                .FirstOrDefault(n => n.HasClass("pagination-page") && (int.Parse(n.InnerText)-1 == currentPageNumber))
+                .GetAttributeValue("href", string.Empty);
+
+            return nextPageUrl;
+        }
+
         private static AdModel ParseAdItem(HtmlNode node)
         {
             var document = new HtmlDocument();
